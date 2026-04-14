@@ -1,0 +1,227 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eef2f7;
+    text-align: center;
+}
+
+/* HEADER */
+
+.header {
+    background: #2b7cff;
+    color: white;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h2 {
+    margin: 0;
+}
+
+.header nav button {
+    background: white;
+    color: #2b7cff;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+.header nav button:hover {
+    background: #dbe7ff;
+}
+
+/* WORKSPACE */
+
+.workspace {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 40px;
+}
+
+/* IMAGE BOX */
+
+.image-box {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    width: 320px;
+}
+
+.image-box h3 {
+    margin-bottom: 10px;
+}
+
+.image-box input {
+    margin-bottom: 10px;
+}
+
+canvas {
+    width: 100%;
+    height: 200px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    background: #fafafa;
+}
+
+#btnSalvar {
+    margin-top: 15px;
+}
+
+/* CONTROLS */
+
+.controls {
+    margin-top: 40px;
+}
+
+.controls h3 {
+    margin-bottom: 15px;
+}
+
+/* BUTTONS */
+
+button {
+    padding: 10px 16px;
+    border: none;
+    background-color: #2b7cff;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+button:hover {
+    background-color: #1a5ed8;
+}
+
+/* BUTTON GROUP */
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+/* SLIDERS */
+
+.slider-box {
+    background: white;
+    padding: 15px;
+    margin: 0 auto 20px;
+    border-radius: 8px;
+    width: fit-content;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+.header nav button {
+    background: white;
+    color: #2b7cff;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+/* 🔥 BOTÃO ATIVO */
+.header nav button.active {
+    background: #1a5ed8;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* animação suave */
+.header nav button {
+    transition: all 0.2s ease;
+}
+
+/* ANIMAÇÃO DAS SEÇÕES */
+
+
+input[type="range"] {
+    width: 250px;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 1000px) {
+    .workspace {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* BASE DAS SEÇÕES */
+.controls {
+    opacity: 0;
+    transform: translateY(10px);
+    transition: all 0.3s ease;
+
+    position: absolute;
+    width: 100%;
+    left: 0;
+
+    pointer-events: none;
+}
+
+/* SEÇÃO ATIVA */
+.controls.active {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+.sections-container {
+    position: relative;
+    min-height: 300px;
+}
+
+/* container para posicionamento */
+body {
+    position: relative;
+}
+
+/* TABS CONTAINER */
+.tabs {
+    display: flex;
+    gap: 30px;
+    position: relative;
+}
+
+/* BOTÕES */
+.tabs button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 10px 5px;
+    position: relative;
+}
+
+/* ATIVO */
+.tabs button.active {
+    font-weight: bold;
+}
+
+/* UNDERLINE DINÂMICO */
+.tab-indicator {
+    position: absolute;
+    bottom: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #fff, #cfe2ff);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+}

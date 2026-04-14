@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Processamento de Imagens</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="header">
+    <h2>Processamento de Imagens</h2>
+
+<nav class="tabs">
+    <button id="btnAritmetica" onclick="mostrarSecao('aritmetica')">
+        Aritméticas
+    </button>
+
+    <button id="btnTransformacao" onclick="mostrarSecao('transformacao')">
+        Transformações
+    </button>
+
+    <!-- underline -->
+    <div class="tab-indicator"></div>
+</nav>
+</header>
+
+
+<!-- WORKSPACE (fixo) -->
+<section class="workspace">
+
+<div class="image-box">
+<h3>Imagem 1</h3>
+<input type="file" id="img1">
+<canvas id="canvas1"></canvas>
+</div>
+
+<div class="image-box">
+<h3>Imagem 2</h3>
+<input type="file" id="img2">
+<canvas id="canvas2"></canvas>
+</div>
+
+<div class="image-box">
+<h3>Resultado</h3>
+<canvas id="canvasResultado"></canvas>
+<button id="btnSalvar">Salvar</button>
+</div>
+
+</section>
+
+
+<!-- =========================
+     ARITMÉTICAS
+========================= -->
+<div class="sections-container">
+<section id="aritmetica" class="controls">
+
+<h3>Operações entre imagens</h3>
+
+<div class="buttons">
+<button id="btnSomar">Somar</button>
+<button id="btnSubtrair">Subtrair</button>
+</div>
+
+
+<h3>Contraste</h3>
+
+<div class="slider-box">
+
+<label>Contraste:</label>
+
+<input type="range" id="contraste" min="0.1" max="3" step="0.1" value="1">
+<span id="valorContraste">1</span>
+
+<div class="buttons">
+<button id="btnMultiplicar">Multiplicar</button>
+<button id="btnDividir">Dividir</button>
+</div>
+
+</div>
+
+
+<h3>Brilho</h3>
+
+<div class="slider-box">
+
+<label>Brilho:</label>
+
+<input type="range" id="constante" min="-100" max="100" value="0">
+
+<button id="btnAplicarBrilho">Aplicar</button>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     TRANSFORMAÇÕES
+========================= -->
+<section id="transformacao" class="controls">
+
+<h3>Transformações</h3>
+
+<div class="buttons">
+<button id="btnGray">Escala de Cinza</button>
+<button id="btnFlipH">Flip Horizontal</button>
+<button id="btnFlipV">Flip Vertical</button>
+<button id="btnDiferenca">Diferença</button>
+</div>
+
+
+<h3>Blending</h3>
+
+<div class="slider-box">
+
+<label>Alpha:</label>
+
+<input type="range" id="alpha" min="0" max="1" step="0.1" value="0.5">
+
+<span id="valorAlpha">0.5</span>
+
+<button id="btnBlending">Aplicar</button>
+<button id="btnMedia">Média</button>
+
+</div>
+
+</section>
+</div>
+
+
+<script>
+function mostrarSecao(secao) {
+
+    const arit = document.getElementById("aritmetica")
+    const trans = document.getElementById("transformacao")
+    const indicator = document.querySelector(".tab-indicator")
+
+    const btnA = document.getElementById("btnAritmetica")
+    const btnT = document.getElementById("btnTransformacao")
+
+    // trocar seção
+    arit.classList.remove("active")
+    trans.classList.remove("active")
+
+    let activeBtn
+
+    if (secao === "aritmetica") {
+        arit.classList.add("active")
+        activeBtn = btnA
+    } else {
+        trans.classList.add("active")
+        activeBtn = btnT
+    }
+
+    // botão ativo
+    btnA.classList.remove("active")
+    btnT.classList.remove("active")
+    activeBtn.classList.add("active")
+
+    // 🔥 mover underline dinamicamente
+    const rect = activeBtn.getBoundingClientRect()
+    const parentRect = activeBtn.parentElement.getBoundingClientRect()
+
+    indicator.style.width = rect.width + "px"
+    indicator.style.left = (rect.left - parentRect.left) + "px"
+}
+</script>
+
+<script>
+mostrarSecao("aritmetica")
+</script>
+
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>
