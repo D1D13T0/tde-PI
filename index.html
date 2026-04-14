@@ -22,13 +22,20 @@
         Transformações
     </button>
 
-    <!-- underline -->
+    <button id="btnLogica" onclick="mostrarSecao('logica')">
+        Lógicas
+    </button>
+
+    <button id="btnFiltros" onclick="mostrarSecao('filtros')">
+    Filtros
+    </button>
+
     <div class="tab-indicator"></div>
 </nav>
 </header>
 
 
-<!-- WORKSPACE (fixo) -->
+<!-- WORKSPACE -->
 <section class="workspace">
 
 <div class="image-box">
@@ -46,23 +53,24 @@
 <div class="image-box">
 <h3>Resultado</h3>
 <canvas id="canvasResultado"></canvas>
-<button id="btnSalvar">Salvar</button>
+<button id="btnSave">Salvar</button>
 </div>
 
 </section>
 
 
+<div class="sections-container">
+
 <!-- =========================
      ARITMÉTICAS
 ========================= -->
-<div class="sections-container">
 <section id="aritmetica" class="controls">
 
 <h3>Operações entre imagens</h3>
 
 <div class="buttons">
-<button id="btnSomar">Somar</button>
-<button id="btnSubtrair">Subtrair</button>
+<button id="btnAdd">Somar</button>
+<button id="btnSubtract">Subtrair</button>
 </div>
 
 
@@ -72,12 +80,12 @@
 
 <label>Contraste:</label>
 
-<input type="range" id="contraste" min="0.1" max="3" step="0.1" value="1">
-<span id="valorContraste">1</span>
+<input type="range" id="contrast" min="0.1" max="3" step="0.1" value="1">
+<span id="contrastValue">1</span>
 
 <div class="buttons">
-<button id="btnMultiplicar">Multiplicar</button>
-<button id="btnDividir">Dividir</button>
+<button id="btnMultiply">Multiplicar</button>
+<button id="btnDivide">Dividir</button>
 </div>
 
 </div>
@@ -89,9 +97,9 @@
 
 <label>Brilho:</label>
 
-<input type="range" id="constante" min="-100" max="100" value="0">
+<input type="range" id="brightness" min="-100" max="100" value="0">
 
-<button id="btnAplicarBrilho">Aplicar</button>
+<button id="btnApplyBrightness">Aplicar</button>
 
 </div>
 
@@ -109,7 +117,7 @@
 <button id="btnGray">Escala de Cinza</button>
 <button id="btnFlipH">Flip Horizontal</button>
 <button id="btnFlipV">Flip Vertical</button>
-<button id="btnDiferenca">Diferença</button>
+<button id="btnDifference">Diferença</button>
 </div>
 
 
@@ -121,14 +129,71 @@
 
 <input type="range" id="alpha" min="0" max="1" step="0.1" value="0.5">
 
-<span id="valorAlpha">0.5</span>
+<span id="alphaValue">0.5</span>
 
 <button id="btnBlending">Aplicar</button>
-<button id="btnMedia">Média</button>
+<button id="btnAverage">Média</button>
 
 </div>
 
 </section>
+
+
+<!-- =========================
+     LÓGICAS
+========================= -->
+
+<section id="logica" class="controls">
+
+<h3>Operações Lógicas</h3>
+
+<div class="buttons">
+    <button id="btnConvertBinary">Converter para Binário</button>
+</div>
+
+<div class="buttons">
+    <button id="btnAND">AND</button>
+    <button id="btnOR">OR</button>
+    <button id="btnXOR">XOR</button>
+    <button id="btnNOT">NOT</button>
+    <button id="btnNegative">Negativo</button>
+    <button id="btnHistogram">Equalizar Histograma</button>
+    
+</div>
+
+<h3>Limiarização</h3>
+
+<div class="slider-box">
+
+<label>Limiar:</label>
+
+<input type="range" id="threshold" min="0" max="255" value="127">
+
+<span id="thresholdValue">127</span>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     FILTROS
+========================= -->
+<section id="filtros" class="controls">
+
+<h3>Filtros Espaciais</h3>
+
+<div class="buttons">
+
+<button id="btnMean">Filtro Média</button>
+<button id="btnMedian">Filtro Mediana</button>
+<button id="btnMax">Filtro Máximo</button>
+<button id="btnMin">Filtro Mínimo</button>
+
+</div>
+
+</section>
+
 </div>
 
 
@@ -137,31 +202,46 @@ function mostrarSecao(secao) {
 
     const arit = document.getElementById("aritmetica")
     const trans = document.getElementById("transformacao")
+    const logica = document.getElementById("logica")
+    const filtros = document.getElementById("filtros")
+
+
     const indicator = document.querySelector(".tab-indicator")
 
     const btnA = document.getElementById("btnAritmetica")
     const btnT = document.getElementById("btnTransformacao")
+    const btnL = document.getElementById("btnLogica")
+    const btnF = document.getElementById("btnFiltros")
 
-    // trocar seção
     arit.classList.remove("active")
     trans.classList.remove("active")
+    logica.classList.remove("active")
+    filtros.classList.remove("active")
+
+
+    btnA.classList.remove("active")
+    btnT.classList.remove("active")
+    btnL.classList.remove("active")
+    btnF.classList.remove("active")
 
     let activeBtn
 
     if (secao === "aritmetica") {
         arit.classList.add("active")
         activeBtn = btnA
-    } else {
+    } else if (secao === "transformacao") {
         trans.classList.add("active")
         activeBtn = btnT
+    } else if (secao === "logica") {
+        logica.classList.add("active")
+        activeBtn = btnL
+    } else if (secao === "filtros") {
+        filtros.classList.add("active")
+        activeBtn = btnF
     }
 
-    // botão ativo
-    btnA.classList.remove("active")
-    btnT.classList.remove("active")
     activeBtn.classList.add("active")
 
-    // 🔥 mover underline dinamicamente
     const rect = activeBtn.getBoundingClientRect()
     const parentRect = activeBtn.parentElement.getBoundingClientRect()
 

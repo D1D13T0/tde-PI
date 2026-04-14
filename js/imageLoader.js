@@ -1,21 +1,25 @@
-export function carregarImagem(input, canvas, ctx, callback) {
+export function loadImage(input, canvas, ctx, callback) {
 
     const file = input.files[0]
 
+    // verifica se algum arquivo foi selecionado
     if (!file) {
         alert("Nenhum arquivo selecionado")
         return
     }
 
-    const img = new Image()
+    const image = new Image()
 
-    img.onload = () => {
+    image.onload = () => {
 
-        canvas.width = img.width
-        canvas.height = img.height
+        // ajusta o canvas para o tamanho da imagem
+        canvas.width = image.width
+        canvas.height = image.height
 
-        ctx.drawImage(img, 0, 0)
+        // desenha a imagem no canvas
+        ctx.drawImage(image, 0, 0)
 
+        // captura os pixels da imagem
         const imageData = ctx.getImageData(
             0,
             0,
@@ -23,8 +27,10 @@ export function carregarImagem(input, canvas, ctx, callback) {
             canvas.height
         )
 
+        // retorna os dados da imagem via callback
         callback(imageData)
     }
 
-    img.src = URL.createObjectURL(file)
+    // cria URL temporária da imagem
+    image.src = URL.createObjectURL(file)
 }
