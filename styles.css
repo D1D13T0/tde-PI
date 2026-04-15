@@ -225,3 +225,44 @@ body {
     border-radius: 2px;
     transition: all 0.3s ease;
 }
+
+.filters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+    width: 100%;
+    max-width: 900px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.filters-grid button {
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: 0.2s ease;
+}
+
+.filters-grid button:hover {
+    transform: translateY(-2px);
+}
+
+.filters-grid button:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    max-width: 250px;
+    width: 100%;
+}
+
+.result-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: center;
+}
+
+#btnReset {
+    background-color: #ff4d4d;
+    color: white;
+}

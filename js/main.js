@@ -21,7 +21,17 @@ import {
     meanFilter,
     medianFilter,
     maxFilter,
-    minFilter
+    minFilter,
+    orderFilter,
+    conservativeSmoothing,
+    gaussianFilter,
+    sobelFilter,
+    laplacianFilter,
+    dilation,
+    erosion,
+    opening,
+    closing,
+    contour
 } from "./transform.js"
 
 
@@ -51,6 +61,8 @@ const thresholdValue = document.getElementById("thresholdValue")
 
 
 /* BOTÕES */
+
+const btnReset = document.getElementById("btnReset")
 
 const btnAdd = document.getElementById("btnAdd")
 const btnSubtract = document.getElementById("btnSubtract")
@@ -86,6 +98,18 @@ const btnMean = document.getElementById("btnMean")
 const btnMedian = document.getElementById("btnMedian")
 const btnMax = document.getElementById("btnMax")
 const btnMin = document.getElementById("btnMin")
+const btnOrder = document.getElementById("btnOrder")
+const btnConservative = document.getElementById("btnConservative")
+const btnGaussian = document.getElementById("btnGaussian")
+const btnSobel = document.getElementById("btnSobel")
+const btnLaplacian = document.getElementById("btnLaplacian")
+
+
+const btnDilation = document.getElementById("btnDilation")
+const btnErosion = document.getElementById("btnErosion")
+const btnOpening = document.getElementById("btnOpening")
+const btnClosing = document.getElementById("btnClosing")
+const btnContour = document.getElementById("btnContour")
 
 /* ESTADO */
 
@@ -114,6 +138,21 @@ inputImg2.addEventListener("change", () => {
     })
 
 })
+
+
+function getBaseImage(mode = "original") {
+
+    if (!image1) {
+        alert("Carregue uma imagem")
+        return null
+    }
+
+    if (mode === "result" && result) {
+        return result
+    }
+
+    return image1
+}
 
 
 /* ADICIONAR IMAGENS */
@@ -179,21 +218,16 @@ btnSave.addEventListener("click", () => {
 
 btnMultiply.addEventListener("click", () => {
 
-    // verifica se existe imagem carregada
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
     const constant = parseFloat(inputContrast.value)
 
-    result = multiplyConstant(image1, constant, ctxResult)
+    result = multiplyConstant(baseImage, constant, ctxResult)
 
-    // ajusta o tamanho do canvas
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
-    // desenha o resultado
     ctxResult.putImageData(result, 0, 0)
 })
 
@@ -203,13 +237,10 @@ btnMultiply.addEventListener("click", () => {
 ========================= */
 
 btnDivide.addEventListener("click", () => {
-
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
-
     const constant = parseFloat(inputContrast.value)
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
 
     // evita divisão por zero
     if (constant === 0) {
@@ -217,10 +248,10 @@ btnDivide.addEventListener("click", () => {
         return
     }
 
-    result = divideConstant(image1, constant, ctxResult)
+    result = divideConstant(baseImage, constant, ctxResult)
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -231,25 +262,18 @@ btnDivide.addEventListener("click", () => {
 ========================= */
 
 btnApplyBrightness.addEventListener("click", () => {
-
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
-
     const value = parseInt(inputBrightness.value)
-
-    // se valor positivo → aumenta brilho
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+        // se valor positivo → aumenta brilho
     if (value >= 0) {
-        result = addConstant(image1, value, ctxResult)
-    } 
-    // se valor negativo → diminui brilho
-    else {
-        result = subtractConstant(image1, Math.abs(value), ctxResult)
+        result = addConstant(baseImage, value, ctxResult)
+    } else {
+        result = subtractConstant(baseImage, Math.abs(value), ctxResult)
     }
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -261,16 +285,13 @@ btnApplyBrightness.addEventListener("click", () => {
 
 btnGray.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
-    const baseImage = result || image1
     result = grayscale(baseImage, ctxResult)
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -282,15 +303,13 @@ btnGray.addEventListener("click", () => {
 
 btnFlipH.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
-    result = flipHorizontal(image1, ctxResult)
+    result = flipHorizontal(baseImage, ctxResult)
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -301,16 +320,13 @@ btnFlipH.addEventListener("click", () => {
 ========================= */
 
 btnFlipV.addEventListener("click", () => {
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
+    result = flipVertical(baseImage, ctxResult)
 
-    result = flipVertical(image1, ctxResult)
-
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -402,8 +418,6 @@ btnAND.addEventListener("click", () => {
 
     result = andOperation(image1, image2, ctxResult)
 
-    if (!result) return
-
     canvasResult.width = image1.width
     canvasResult.height = image1.height
 
@@ -416,6 +430,11 @@ btnAND.addEventListener("click", () => {
 ========================= */
 
 btnOR.addEventListener("click", () => {
+
+    if (!image1 || !image2) {
+    alert("Carregue as duas imagens")
+    return
+    }
 
     result = orOperation(image1, image2, ctxResult)
 
@@ -432,6 +451,11 @@ btnOR.addEventListener("click", () => {
 
 btnXOR.addEventListener("click", () => {
 
+    if (!image1 || !image2) {
+    alert("Carregue as duas imagens")
+    return
+    }
+
     result = xorOperation(image1, image2, ctxResult)
 
     canvasResult.width = image1.width
@@ -446,33 +470,28 @@ btnXOR.addEventListener("click", () => {
 
 btnNOT.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
+    const baseImage = getBaseImage("result")
+    if (!baseImage) return
 
-    const baseImage = result || image1
     result = notOperation(baseImage, ctxResult)
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
 
 btnConvertBinary.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
-    const threshold = 127 // valor fixo padrão
+    const threshold = 127
 
-    result = thresholdImage(image1, threshold, ctxResult)
+    result = thresholdImage(baseImage, threshold, ctxResult)
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -480,16 +499,13 @@ btnConvertBinary.addEventListener("click", () => {
 
 btnNegative.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
+    const baseImage = getBaseImage("result")
+    if (!baseImage) return
 
-    const baseImage = result || image1
     result = negativeImage(baseImage, ctxResult)
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -498,14 +514,15 @@ inputThreshold.addEventListener("input", () => {
 
     thresholdValue.textContent = inputThreshold.value
 
-    if (!image1) return
 
     const threshold = parseInt(inputThreshold.value)
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
-    result = thresholdImage(image1, threshold, ctxResult)
+    result = thresholdImage(baseImage, threshold, ctxResult)
 
-    canvasResult.width = image1.width
-    canvasResult.height = image1.height
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
 })
@@ -514,12 +531,8 @@ inputThreshold.addEventListener("input", () => {
 
 btnHistogram.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
-
-    const baseImage = result || image1
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
     result = histogramEqualization(baseImage, ctxResult)
 
@@ -531,12 +544,8 @@ btnHistogram.addEventListener("click", () => {
 
 btnMean.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
-
-    const baseImage = result || image1
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
     result = meanFilter(baseImage, ctxResult)
 
@@ -548,12 +557,8 @@ btnMean.addEventListener("click", () => {
 
 btnMedian.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
-
-    const baseImage = result || image1
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
     result = medianFilter(baseImage, ctxResult)
 
@@ -565,12 +570,8 @@ btnMedian.addEventListener("click", () => {
 
 btnMax.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
-
-    const baseImage = result || image1
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
     result = maxFilter(baseImage, ctxResult)
 
@@ -582,12 +583,8 @@ btnMax.addEventListener("click", () => {
 
 btnMin.addEventListener("click", () => {
 
-    if (!image1) {
-        alert("Carregue uma imagem")
-        return
-    }
-
-    const baseImage = result || image1
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
 
     result = minFilter(baseImage, ctxResult)
 
@@ -595,4 +592,148 @@ btnMin.addEventListener("click", () => {
     canvasResult.height = baseImage.height
 
     ctxResult.putImageData(result, 0, 0)
+})
+
+btnOrder.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = orderFilter(baseImage, 4, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnConservative.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = conservativeSmoothing(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+
+btnGaussian.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = gaussianFilter(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnSobel.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = sobelFilter(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnLaplacian.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = laplacianFilter(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+
+btnDilation.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = dilation(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnErosion.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = erosion(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnOpening.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = opening(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnClosing.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = closing(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnContour.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = contour(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+btnReset.addEventListener("click", () => {
+
+    if (!image1) return
+
+    result = null
+
+    canvasResult.width = image1.width
+    canvasResult.height = image1.height
+
+    ctxResult.putImageData(image1, 0, 0)
 })

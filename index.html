@@ -30,6 +30,10 @@
     Filtros
     </button>
 
+    <button id="btnMorfologia" onclick="mostrarSecao('morfologia')">
+    Morfologia
+    </button>
+
     <div class="tab-indicator"></div>
 </nav>
 </header>
@@ -51,9 +55,13 @@
 </div>
 
 <div class="image-box">
-<h3>Resultado</h3>
-<canvas id="canvasResultado"></canvas>
-<button id="btnSave">Salvar</button>
+    <h3>Resultado</h3>
+    <canvas id="canvasResultado"></canvas>
+
+    <div class="result-actions">
+        <button id="btnSave">Salvar</button>
+        <button id="btnReset">Resetar</button>
+    </div>
 </div>
 
 </section>
@@ -183,12 +191,36 @@
 
 <h3>Filtros Espaciais</h3>
 
-<div class="buttons">
+<div class="filters-grid">
 
 <button id="btnMean">Filtro Média</button>
 <button id="btnMedian">Filtro Mediana</button>
 <button id="btnMax">Filtro Máximo</button>
 <button id="btnMin">Filtro Mínimo</button>
+<button id="btnOrder">Filtro Ordem</button>
+<button id="btnConservative">Suavização Conservativa</button>
+<button id="btnGaussian">Filtro Gaussiano</button>
+<button id="btnSobel">Filtro Sobel</button>
+<button id="btnLaplacian">Filtro Laplaciano</button>
+
+</div>
+
+</section>
+
+<!-- =========================
+     MORFOLOGIA
+========================= -->
+<section id="morfologia" class="controls">
+
+<h3>Operações Morfológicas</h3>
+
+<div class="filters-grid">
+
+<button id="btnDilation">Dilatação</button>
+<button id="btnErosion">Erosão</button>
+<button id="btnOpening">Abertura</button>
+<button id="btnClosing">Fechamento</button>
+<button id="btnContour">Contorno</button>
 
 </div>
 
@@ -204,6 +236,7 @@ function mostrarSecao(secao) {
     const trans = document.getElementById("transformacao")
     const logica = document.getElementById("logica")
     const filtros = document.getElementById("filtros")
+    const morf = document.getElementById("morfologia")
 
 
     const indicator = document.querySelector(".tab-indicator")
@@ -212,17 +245,20 @@ function mostrarSecao(secao) {
     const btnT = document.getElementById("btnTransformacao")
     const btnL = document.getElementById("btnLogica")
     const btnF = document.getElementById("btnFiltros")
+    const btnM = document.getElementById("btnMorfologia")
 
     arit.classList.remove("active")
     trans.classList.remove("active")
     logica.classList.remove("active")
     filtros.classList.remove("active")
+    morf.classList.remove("active")
 
 
     btnA.classList.remove("active")
     btnT.classList.remove("active")
     btnL.classList.remove("active")
     btnF.classList.remove("active")
+    btnM.classList.remove("active")
 
     let activeBtn
 
@@ -238,6 +274,9 @@ function mostrarSecao(secao) {
     } else if (secao === "filtros") {
         filtros.classList.add("active")
         activeBtn = btnF
+    } else if (secao === "morfologia") {
+        morf.classList.add("active")
+        activeBtn = btnM
     }
 
     activeBtn.classList.add("active")
