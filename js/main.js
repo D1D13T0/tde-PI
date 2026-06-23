@@ -134,6 +134,8 @@ let image2 = null
 let result = null
 
 
+const brightnessValue = document.getElementById("brightnessValue")
+
 /* CARREGAR IMAGEM 1 */
 
 inputImg1.addEventListener("change", () => {
@@ -238,6 +240,7 @@ btnMultiply.addEventListener("click", () => {
     if (!baseImage) return
 
     const constant = parseFloat(inputContrast.value)
+    document.getElementById("contrastValue").textContent = constant
 
     result = multiplyConstant(baseImage, constant, ctxResult)
 
@@ -254,6 +257,7 @@ btnMultiply.addEventListener("click", () => {
 
 btnDivide.addEventListener("click", () => {
     const constant = parseFloat(inputContrast.value)
+    document.getElementById("contrastValue").textContent = constant
     const baseImage = getBaseImage("original")
     if (!baseImage) return
 
@@ -279,6 +283,7 @@ btnDivide.addEventListener("click", () => {
 
 btnApplyBrightness.addEventListener("click", () => {
     const value = parseInt(inputBrightness.value)
+    brightnessValue.textContent = value
     const baseImage = getBaseImage("original")
     if (!baseImage) return
         // se valor positivo → aumenta brilho
