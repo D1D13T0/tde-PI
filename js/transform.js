@@ -857,3 +857,86 @@ export function contour(image, ctx) {
 
     return result
 }
+
+
+/* =========================
+   PREWITT (DETECÇÃO DE BORDA)
+========================= */
+
+export function prewittFilter(image, ctx) {
+
+    const result = ctx.createImageData(image)
+
+    const width = image.width
+    const height = image.height
+
+    const gray = []
+
+    for (let i = 0; i < image.data.length; i += 4) {
+        gray.push(0.299 * image.data[i] + 0.587 * image.data[i + 1] + 0.114 * image.data[i + 2])
+    }
+
+    const Gx = [
+        [-1, 0, 1],
+        [-1, 0, 1],
+        [-1, 0, 1]
+    ]
+
+    const Gy = [
+        [-1, -1, -1],
+        [ 0,  0,  0],
+        [ 1,  1,  1]
+    ]
+
+    for (let y = 1; y < height - 1; y++) {
+        for (let x = 1; x < width - 1; x++) {
+
+            let sumX = 0
+            let sumY = 0
+
+            for (let ky = -1; ky <= 1; ky++) {
+                for (let kx = -1; kx <= 1; kx++) {
+                    const pixel = gray[(y + ky) * width + (x + kx)]
+                    sumX += pixel * Gx[ky + 1][kx + 1]
+                    sumY += pixel * Gy[ky + 1][kx + 1]
+                }
+            }
+
+            const magnitude = Math.min(Math.sqrt(sumX * sumX + sumY * sumY), 255)
+
+            const i = (y * width + x) * 4
+
+            result.data[i] = magnitude
+            result.data[i + 1] = magnitude
+            result.data[i + 2] = magnitude
+            result.data[i + 3] = 255
+        }
+    }
+
+    return result
+}
+
+
+/* =========================
+   RECORTE DE REGIÃO
+========================= */
+
+export function cropRegion(image, x, y, w, h, ctx) {
+
+    const result = ctx.createImageData(w, h)
+
+    for (let row = 0; row < h; row++) {
+        for (let col = 0; col < w; col++) {
+
+            const src = ((y + row) * image.width + (x + col)) * 4
+            const dst = (row * w + col) * 4
+
+            result.data[dst] = image.data[src]
+            result.data[dst + 1] = image.data[src + 1]
+            result.data[dst + 2] = image.data[src + 2]
+            result.data[dst + 3] = 255
+        }
+    }
+
+    return result
+}

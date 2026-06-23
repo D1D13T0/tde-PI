@@ -8,12 +8,12 @@ import {
     divideConstant
 } from "./arithmetic.js"
 
-import { 
-    grayscale, 
-    flipHorizontal, 
-    flipVertical, 
-    differenceImages, 
-    blending, 
+import {
+    grayscale,
+    flipHorizontal,
+    flipVertical,
+    differenceImages,
+    blending,
     averageImages,
     thresholdImage,
     negativeImage,
@@ -31,7 +31,9 @@ import {
     erosion,
     opening,
     closing,
-    contour
+    contour,
+    prewittFilter,
+    cropRegion
 } from "./transform.js"
 
 
@@ -110,6 +112,20 @@ const btnErosion = document.getElementById("btnErosion")
 const btnOpening = document.getElementById("btnOpening")
 const btnClosing = document.getElementById("btnClosing")
 const btnContour = document.getElementById("btnContour")
+
+const btnPrewitt = document.getElementById("btnPrewitt")
+
+const btnCropMode = document.getElementById("btnCropMode")
+const btnApplyCrop = document.getElementById("btnApplyCrop")
+const btnCancelCrop = document.getElementById("btnCancelCrop")
+const cropInfo = document.getElementById("cropInfo")
+const canvasOverlay = document.getElementById("canvasOverlay")
+const ctxOverlay = canvasOverlay.getContext("2d")
+
+const jpegQuality = document.getElementById("jpegQuality")
+const jpegQualityValue = document.getElementById("jpegQualityValue")
+const btnCompress = document.getElementById("btnCompress")
+const compressionInfo = document.getElementById("compressionInfo")
 
 /* ESTADO */
 
@@ -736,4 +752,199 @@ btnReset.addEventListener("click", () => {
     canvasResult.height = image1.height
 
     ctxResult.putImageData(image1, 0, 0)
+})
+
+
+/* =========================
+   PREWITT
+========================= */
+
+btnPrewitt.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    result = prewittFilter(baseImage, ctxResult)
+
+    canvasResult.width = baseImage.width
+    canvasResult.height = baseImage.height
+
+    ctxResult.putImageData(result, 0, 0)
+})
+
+
+/* =========================
+   RECORTE DE REGIÃO
+========================= */
+
+let cropActive = false
+let cropStartDisplay = null
+let cropRect = null
+
+function getOverlayCoords(e) {
+    const rect = canvasOverlay.getBoundingClientRect()
+    const scaleX = canvasOverlay.width / rect.width
+    const scaleY = canvasOverlay.height / rect.height
+    return {
+        x: Math.max(0, Math.min((e.clientX - rect.left) * scaleX, canvasOverlay.width)),
+        y: Math.max(0, Math.min((e.clientY - rect.top) * scaleY, canvasOverlay.height))
+    }
+}
+
+function deactivateCrop() {
+    cropActive = false
+    cropStartDisplay = null
+    cropRect = null
+    ctxOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height)
+    canvasOverlay.style.display = "none"
+    btnCropMode.style.display = "inline-block"
+    btnCancelCrop.style.display = "none"
+    btnApplyCrop.disabled = true
+    cropInfo.style.display = "none"
+}
+
+btnCropMode.addEventListener("click", () => {
+
+    if (!image1) {
+        alert("Carregue uma imagem primeiro")
+        return
+    }
+
+    cropActive = true
+    cropStartDisplay = null
+    cropRect = null
+
+    const rect = canvas1.getBoundingClientRect()
+    canvasOverlay.width = Math.round(rect.width)
+    canvasOverlay.height = Math.round(rect.height)
+    canvasOverlay.style.display = "block"
+
+    btnCropMode.style.display = "none"
+    btnCancelCrop.style.display = "inline-block"
+    btnApplyCrop.disabled = true
+    cropInfo.style.display = "block"
+    cropInfo.textContent = "Arraste sobre a Imagem 1 para selecionar a região"
+})
+
+btnCancelCrop.addEventListener("click", deactivateCrop)
+
+canvasOverlay.addEventListener("mousedown", (e) => {
+    if (!cropActive) return
+    e.preventDefault()
+    cropStartDisplay = getOverlayCoords(e)
+    cropRect = null
+    btnApplyCrop.disabled = true
+    ctxOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height)
+})
+
+canvasOverlay.addEventListener("mousemove", (e) => {
+    if (!cropActive || !cropStartDisplay) return
+    e.preventDefault()
+
+    const cur = getOverlayCoords(e)
+    const x = Math.min(cropStartDisplay.x, cur.x)
+    const y = Math.min(cropStartDisplay.y, cur.y)
+    const w = Math.abs(cur.x - cropStartDisplay.x)
+    const h = Math.abs(cur.y - cropStartDisplay.y)
+
+    ctxOverlay.clearRect(0, 0, canvasOverlay.width, canvasOverlay.height)
+    ctxOverlay.fillStyle = "rgba(43, 124, 255, 0.15)"
+    ctxOverlay.fillRect(x, y, w, h)
+    ctxOverlay.strokeStyle = "#2b7cff"
+    ctxOverlay.lineWidth = 2
+    ctxOverlay.setLineDash([6, 3])
+    ctxOverlay.strokeRect(x, y, w, h)
+})
+
+// mouseup no document para capturar mesmo se o mouse soltar fora da overlay
+document.addEventListener("mouseup", (e) => {
+    if (!cropActive || !cropStartDisplay) return
+
+    const cur = getOverlayCoords(e)
+    const dispX = Math.min(cropStartDisplay.x, cur.x)
+    const dispY = Math.min(cropStartDisplay.y, cur.y)
+    const dispW = Math.abs(cur.x - cropStartDisplay.x)
+    const dispH = Math.abs(cur.y - cropStartDisplay.y)
+
+    cropStartDisplay = null
+
+    if (dispW < 2 || dispH < 2) return
+
+    // converte coordenadas da overlay para coordenadas reais da imagem
+    const scaleX = image1.width / canvasOverlay.width
+    const scaleY = image1.height / canvasOverlay.height
+
+    cropRect = {
+        x: Math.round(dispX * scaleX),
+        y: Math.round(dispY * scaleY),
+        w: Math.round(dispW * scaleX),
+        h: Math.round(dispH * scaleY)
+    }
+
+    btnApplyCrop.disabled = false
+    cropInfo.textContent = `Seleção: x=${cropRect.x}, y=${cropRect.y}, w=${cropRect.w}, h=${cropRect.h} px — clique em Aplicar Recorte`
+})
+
+btnApplyCrop.addEventListener("click", () => {
+
+    if (!cropRect || !image1) return
+
+    const { x, y, w, h } = cropRect
+
+    result = cropRegion(image1, x, y, w, h, ctxResult)
+
+    canvasResult.width = w
+    canvasResult.height = h
+
+    ctxResult.putImageData(result, 0, 0)
+
+    deactivateCrop()
+})
+
+
+/* =========================
+   COMPRESSÃO JPEG
+========================= */
+
+jpegQuality.addEventListener("input", () => {
+    jpegQualityValue.textContent = jpegQuality.value + "%"
+})
+
+btnCompress.addEventListener("click", () => {
+
+    const baseImage = getBaseImage("original")
+    if (!baseImage) return
+
+    const quality = parseInt(jpegQuality.value) / 100
+
+    const tempCanvas = document.createElement("canvas")
+    tempCanvas.width = baseImage.width
+    tempCanvas.height = baseImage.height
+    const tempCtx = tempCanvas.getContext("2d")
+    tempCtx.putImageData(baseImage, 0, 0)
+
+    const dataUrl = tempCanvas.toDataURL("image/jpeg", quality)
+
+    const img = new Image()
+
+    img.onload = () => {
+
+        canvasResult.width = baseImage.width
+        canvasResult.height = baseImage.height
+        ctxResult.drawImage(img, 0, 0)
+
+        result = ctxResult.getImageData(0, 0, canvasResult.width, canvasResult.height)
+
+        const originalBytes = baseImage.width * baseImage.height * 3
+        const b64 = dataUrl.substring(dataUrl.indexOf(",") + 1)
+        const compressedBytes = Math.round(b64.length * 0.75)
+        const reduction = (100 - (compressedBytes / originalBytes) * 100).toFixed(1)
+
+        compressionInfo.textContent =
+            `Original: ~${(originalBytes / 1024).toFixed(1)} KB  |  ` +
+            `Comprimido: ~${(compressedBytes / 1024).toFixed(1)} KB  |  ` +
+            `Redução: ${reduction}%`
+    }
+
+    img.src = dataUrl
 })

@@ -34,6 +34,10 @@
     Morfologia
     </button>
 
+    <button id="btnCompressao" onclick="mostrarSecao('compressao')">
+    Compressão
+    </button>
+
     <div class="tab-indicator"></div>
 </nav>
 </header>
@@ -45,7 +49,10 @@
 <div class="image-box">
 <h3>Imagem 1</h3>
 <input type="file" id="img1">
-<canvas id="canvas1"></canvas>
+<div class="canvas-wrapper">
+    <canvas id="canvas1"></canvas>
+    <canvas id="canvasOverlay"></canvas>
+</div>
 </div>
 
 <div class="image-box">
@@ -144,6 +151,19 @@
 
 </div>
 
+
+<h3>Recorte de Região</h3>
+
+<div class="buttons">
+    <button id="btnCropMode">Ativar Recorte</button>
+    <button id="btnApplyCrop" disabled>Aplicar Recorte</button>
+    <button id="btnCancelCrop" style="background:#ff4d4d; display:none;">Cancelar</button>
+</div>
+
+<p id="cropInfo" style="display:none; color:#555; font-size:14px; margin-bottom:15px;">
+    Arraste sobre a Imagem 1 para selecionar a região
+</p>
+
 </section>
 
 
@@ -200,6 +220,7 @@
 <button id="btnOrder">Filtro Ordem</button>
 <button id="btnConservative">Suavização Conservativa</button>
 <button id="btnGaussian">Filtro Gaussiano</button>
+<button id="btnPrewitt">Filtro Prewitt</button>
 <button id="btnSobel">Filtro Sobel</button>
 <button id="btnLaplacian">Filtro Laplaciano</button>
 
@@ -226,59 +247,49 @@
 
 </section>
 
+<!-- =========================
+     COMPRESSÃO
+========================= -->
+<section id="compressao" class="controls">
+
+<h3>Compressão JPEG</h3>
+
+<div class="slider-box">
+    <label>Qualidade:</label>
+    <input type="range" id="jpegQuality" min="1" max="100" value="50">
+    <span id="jpegQualityValue">50%</span>
+    <button id="btnCompress">Aplicar Compressão</button>
+</div>
+
+<p id="compressionInfo" style="margin-top:10px; font-size:14px; color:#555;"></p>
+
+</section>
+
 </div>
 
 
 <script>
 function mostrarSecao(secao) {
 
-    const arit = document.getElementById("aritmetica")
-    const trans = document.getElementById("transformacao")
-    const logica = document.getElementById("logica")
-    const filtros = document.getElementById("filtros")
-    const morf = document.getElementById("morfologia")
-
+    const sections = ["aritmetica", "transformacao", "logica", "filtros", "morfologia", "compressao"]
+    const btnIds = {
+        aritmetica: "btnAritmetica",
+        transformacao: "btnTransformacao",
+        logica: "btnLogica",
+        filtros: "btnFiltros",
+        morfologia: "btnMorfologia",
+        compressao: "btnCompressao"
+    }
 
     const indicator = document.querySelector(".tab-indicator")
 
-    const btnA = document.getElementById("btnAritmetica")
-    const btnT = document.getElementById("btnTransformacao")
-    const btnL = document.getElementById("btnLogica")
-    const btnF = document.getElementById("btnFiltros")
-    const btnM = document.getElementById("btnMorfologia")
+    sections.forEach(s => {
+        document.getElementById(s).classList.remove("active")
+        document.getElementById(btnIds[s]).classList.remove("active")
+    })
 
-    arit.classList.remove("active")
-    trans.classList.remove("active")
-    logica.classList.remove("active")
-    filtros.classList.remove("active")
-    morf.classList.remove("active")
-
-
-    btnA.classList.remove("active")
-    btnT.classList.remove("active")
-    btnL.classList.remove("active")
-    btnF.classList.remove("active")
-    btnM.classList.remove("active")
-
-    let activeBtn
-
-    if (secao === "aritmetica") {
-        arit.classList.add("active")
-        activeBtn = btnA
-    } else if (secao === "transformacao") {
-        trans.classList.add("active")
-        activeBtn = btnT
-    } else if (secao === "logica") {
-        logica.classList.add("active")
-        activeBtn = btnL
-    } else if (secao === "filtros") {
-        filtros.classList.add("active")
-        activeBtn = btnF
-    } else if (secao === "morfologia") {
-        morf.classList.add("active")
-        activeBtn = btnM
-    }
-
+    document.getElementById(secao).classList.add("active")
+    const activeBtn = document.getElementById(btnIds[secao])
     activeBtn.classList.add("active")
 
     const rect = activeBtn.getBoundingClientRect()
